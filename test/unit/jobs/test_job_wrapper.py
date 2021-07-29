@@ -1,5 +1,6 @@
 import os
 from contextlib import contextmanager
+import datetime
 from unittest import TestCase
 
 from galaxy.jobs import (
@@ -30,6 +31,7 @@ class BaseWrapperTestCase(UsesApp):
         job.tool_id = TEST_TOOL_ID
         job.user = User()
         job.object_store_id = "foo"
+        job.update_time = job.create_time = datetime.datetime.now()
         self.model_objects = {Job: {345: job}}
         self.app.model.session = MockContext(self.model_objects)
 
@@ -164,6 +166,11 @@ class MockTool:
         self.dependencies = []
         self.requires_galaxy_python_environment = False
         self.id = 'mock_id'
+        self.home_target = None
+        self.tmp_target = None
+
+    def get_job_destination(self, params):
+        return Bunch(runner='local', id='local', params={})
 
     def build_dependency_shell_commands(self, job_directory):
         return TEST_DEPENDENCIES_COMMANDS
