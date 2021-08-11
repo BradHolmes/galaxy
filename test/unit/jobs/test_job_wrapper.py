@@ -70,7 +70,9 @@ class BaseWrapperTestCase(UsesApp):
 class JobWrapperTestCase(BaseWrapperTestCase, TestCase):
 
     def _wrapper(self):
-        return JobWrapper(self.job, self.queue)
+        wrapper = JobWrapper(self.job, self.queue)
+        wrapper.remote_command_line = False
+        return wrapper
 
     def test_prepare_sets_version_command(self):
         with self._prepared_wrapper() as wrapper:

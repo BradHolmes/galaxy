@@ -10,6 +10,7 @@ from json import (
     dumps,
     load,
 )
+from typing import DefaultDict
 from uuid import uuid4
 
 from bdbag import bdbag_api as bdb
@@ -51,22 +52,25 @@ class SessionlessContext:
 
     def __init__(self):
         self.objects = []
+        self.objects_by_class_and_id = DefaultDict(dict)
 
     def flush(self):
         pass
 
     def add(self, obj):
         self.objects.append(obj)
+        self.objects_by_class_and_id[type(obj)][obj.id] = obj
 
     def query(self, model_class):
 
         def find(obj_id):
-            for obj in self.objects:
-                if isinstance(obj, model_class) and obj.id == obj_id:
-                    return obj
-            return None
+            return self.objects_by_class_and_id.get(model_class, {}).get(obj_id)
 
-        return Bunch(find=find, get=find)
+        def filter_by(*args, **kwargs):
+            # TODO: Hack for history export archive, should support this too
+            return Bunch(first=lambda: None)
+
+        return Bunch(find=find, get=find, filter_by=filter_by)
 
 
 class ModelImportStore(metaclass=abc.ABCMeta):
@@ -1035,10 +1039,10 @@ class DirectoryModelExportStore(ModelExportStore):
         if not os.path.exists(export_directory):
             os.makedirs(export_directory)
 
-        if encode_ids is False:
-            class security:
-                def encode_id(self, obj_id, kind=None):
-                    return obj_id
+        # if encode_ids is False:
+        #     class security:
+        #         def encode_id(self, obj_id, kind=None):
+        #             return obj_id
 
         sessionless = False
         if app is not None:
