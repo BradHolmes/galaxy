@@ -17,6 +17,8 @@ from galaxy.tools import (
     create_tool_from_source,
     evaluation,
 )
+from galaxy.util.bunch import Bunch
+from galaxy.util.dbkeys import GenomeBuilds
 
 
 class ToolAppConfig(NamedTuple):
@@ -24,6 +26,9 @@ class ToolAppConfig(NamedTuple):
     tool_data_path: str
     root: str = '/tmp'
     admin_users: list = []
+    nginx_upload_path = None
+    len_file_path = '/Users/mvandenb/src/galaxy/tool-data/shared/ucsc/chrom'
+    builds_file_path = '/Users/mvandenb/src/galaxy/tool-data/shared/ucsc/builds.txt'
 
 
 class ToolApp:
@@ -36,6 +41,9 @@ class ToolApp:
         self.config = tool_app_config
         self.datatypes_registry = datatypes_registry
         self.object_store = object_store
+        self.genome_builds = GenomeBuilds(self)
+        self.tool_data_tables = {}
+        self.file_sources = Bunch(to_dict=lambda *args, **kwargs: {})
 
 
 def main():

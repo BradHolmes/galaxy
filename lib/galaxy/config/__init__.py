@@ -1224,6 +1224,9 @@ class ConfiguresGalaxyMixin:
             # Missing shed_tool_data_table_config is okay if it's the default
             if exc.errno != errno.ENOENT or self.config.is_set('shed_tool_data_table_config'):
                 raise
+        import yaml
+        with open('/tmp/tool_data_tables.yaml', 'w') as out:
+            out.write(yaml.dump(self.tool_data_tables))
 
     def _configure_datatypes_registry(self, installed_repository_manager=None):
         from galaxy.datatypes import registry

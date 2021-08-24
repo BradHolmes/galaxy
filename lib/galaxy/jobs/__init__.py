@@ -1136,7 +1136,7 @@ class JobWrapper(HasResourceParameters):
         """
         new = os.path.join(self.working_directory, 'upload_params.json')
         try:
-            shutil.move(tool_evaluator.param_dict['paramfile'], new)
+            shutil.copy2(tool_evaluator.param_dict['paramfile'], new)
         except OSError as exc:
             # It won't exist at the old path if setup was interrupted and tried again later
             if exc.errno != errno.ENOENT or not os.path.exists(new):
